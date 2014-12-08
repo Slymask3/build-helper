@@ -4,8 +4,8 @@ This is the source code for my Build Helper mod, you can check in here if you're
 
 <b>Description:</b> Adds wands to make building easy.
 
-<b>Forum Post:</b> None yet.
+<b>Forum Post:</b> http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2297274
 
-<b>Released Mod Version:</b> None
+<b>Released Mod Version:</b> 1.0.0 (MC 1.7.10)
 
-<b>WIP Mod Version:</b> 1.0.0 (MC 1.7.10)
+<b>WIP Mod Version:</b> 1.0.1 (MC 1.7.10)
