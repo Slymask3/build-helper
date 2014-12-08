@@ -2,7 +2,7 @@
 {
 	"modid": "buildhelper",
 	"name": "Build Helper",
-	"description": "Build Helper mod description here.",
+	"description": "Adds 2 wands that help with building. (Not meant for survival mode).",
 	"version": "1.0.0",
 	"credits": "Created by Slymask3",
 	"logoFile": "/logo_1.0.0.png",

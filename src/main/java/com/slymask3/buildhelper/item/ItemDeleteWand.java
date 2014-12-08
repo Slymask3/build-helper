@@ -2,9 +2,9 @@ package com.slymask3.buildhelper.item;
 
 import java.util.List;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
@@ -20,18 +20,18 @@ import com.slymask3.buildhelper.utility.Helper;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-public class ItemUniversalWand extends ItemBase {
-    public static final String[] state = new String[] {"normal", "select", "pos1"};
-	public IIcon[] icons = new IIcon[3];
+public class ItemDeleteWand extends ItemBase {
+    public static final String[] state = new String[] {"normal", "pos1"};
+	public IIcon[] icons = new IIcon[2];
 	
-	public ItemUniversalWand() {
+	public ItemDeleteWand() {
 		super();
 	}
 	
 	@Override
 	public void registerIcons(IIconRegister reg) {
-	    for (int i = 0; i < 3; i ++) {
-	        this.icons[i] = reg.registerIcon(Reference.MOD_ID + ":wandUniversal_" + i);
+	    for (int i = 0; i < 2; i ++) {
+	        this.icons[i] = reg.registerIcon(Reference.MOD_ID + ":wandDelete_" + i);
 	    }
 	}
 	
@@ -43,7 +43,7 @@ public class ItemUniversalWand extends ItemBase {
 	
 	@Override
 	public IIcon getIconFromDamage(int meta) {
-	    if (meta > 2)
+	    if (meta > 1)
 	        meta = 0;
 
 	    return this.icons[meta];
@@ -51,7 +51,7 @@ public class ItemUniversalWand extends ItemBase {
 
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return this.getUnlocalizedName();// + "_" + state[stack.getItemDamage()];
+	    return this.getUnlocalizedName();// + "_" + state[stack.getItemDamage()];
 	}
 	
 	public ItemStack onItemRightClick(ItemStack is, World world, EntityPlayer player) {
@@ -66,24 +66,10 @@ public class ItemUniversalWand extends ItemBase {
             return is;
         }
         else {
-			if (is.getItemDamage() == 0) { //BLOCK SELECTED
-				ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 1);
-				isn.stackTagCompound = new NBTTagCompound();
-				
-	        	isn.stackTagCompound.setInteger("block", Block.getIdFromBlock(world.getBlock(mop.blockX, mop.blockY, mop.blockZ)));
-	        	isn.stackTagCompound.setInteger("meta", world.getBlockMetadata(mop.blockX, mop.blockY, mop.blockZ));
-
-	        	Helper.msg(player, Colors.a+"Block selected: " + Block.getBlockById(isn.stackTagCompound.getInteger("block")).getLocalizedName(), Colors.a);
-	            
-	        	Helper.effectFull(world, "reddust", mop.blockX, mop.blockY, mop.blockZ);
-	        	
-	        	return isn;
-	        } else if (is.getItemDamage() == 1) { //POS 1 SELECTED
-	        	ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 2);
+			if (is.getItemDamage() == 0) { //POS 1 SELECTED
+	        	ItemStack isn = new ItemStack(ModItems.wandDelete, 1, 1);
 	        	isn.stackTagCompound = new NBTTagCompound();
 	        	
-	        	isn.stackTagCompound.setInteger("block", is.stackTagCompound.getInteger("block"));
-	        	isn.stackTagCompound.setInteger("meta", is.stackTagCompound.getInteger("meta"));
 	        	isn.stackTagCompound.setInteger("x1", mop.blockX);
 	        	isn.stackTagCompound.setInteger("y1", mop.blockY);
 	        	isn.stackTagCompound.setInteger("z1", mop.blockZ);
@@ -93,12 +79,10 @@ public class ItemUniversalWand extends ItemBase {
 	        	Helper.effectFull(world, "reddust", mop.blockX, mop.blockY, mop.blockZ);
 	        	
 	        	return isn;
-	        } else if (is.getItemDamage() == 2) { //POS 2 SELECTED
-	        	ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 0);
+	        } else if (is.getItemDamage() == 1) { //POS 2 SELECTED
+	        	ItemStack isn = new ItemStack(ModItems.wandDelete, 1, 0);
 	        	isn.stackTagCompound = new NBTTagCompound();
 	        	
-	        	isn.stackTagCompound.setInteger("block", is.stackTagCompound.getInteger("block"));
-	        	isn.stackTagCompound.setInteger("meta", is.stackTagCompound.getInteger("meta"));
 	        	isn.stackTagCompound.setInteger("x1", is.stackTagCompound.getInteger("x1"));
 	        	isn.stackTagCompound.setInteger("y1", is.stackTagCompound.getInteger("y1"));
 	        	isn.stackTagCompound.setInteger("z1", is.stackTagCompound.getInteger("z1"));
@@ -127,7 +111,7 @@ public class ItemUniversalWand extends ItemBase {
 	                for (int j=0; j<zDif+1; j++) {
 	                    for (int k=0; k<xDif+1; k++) {
 	                        
-	                        world.setBlock(x, y, z, Block.getBlockById(isn.stackTagCompound.getInteger("block")), isn.stackTagCompound.getInteger("meta"), 2);
+	                        world.setBlock(x, y, z, Blocks.air, 0, 2);
 	                        amount++;
 	                        
 	                        if(isPositive(isn.stackTagCompound.getInteger("x1") - isn.stackTagCompound.getInteger("x2"))) {
@@ -154,7 +138,7 @@ public class ItemUniversalWand extends ItemBase {
 	                }
 	            }
 	        	
-	        	Helper.msg(player, Colors.b+"Generated " + amount + " blocks.", Colors.b);
+	        	Helper.msg(player, Colors.b+"Deleted " + amount + " blocks.", Colors.b);
 	        	
 	        	Helper.sound(world, ConfigurationHandler.sound, mop.blockX, mop.blockY, mop.blockZ);
 	        	
@@ -182,12 +166,9 @@ public class ItemUniversalWand extends ItemBase {
 	
 	public void addInformation(ItemStack is, EntityPlayer player, List list, boolean par4) {
 		if(is.getItemDamage() == 0) {
-			list.add("Select a Block with right-click.");
+			list.add("Select Position 1 with right-click.");
 		}
 		if(is.getItemDamage() >= 1 && is.stackTagCompound != null) {
-			list.add("Block: " +  Block.getBlockById(is.stackTagCompound.getInteger("block")).getLocalizedName());
-		}
-		if(is.getItemDamage() >= 2 && is.stackTagCompound != null) {
 			list.add("Pos 1: " + is.stackTagCompound.getInteger("x1") + ", " + is.stackTagCompound.getInteger("y1") + ", " + is.stackTagCompound.getInteger("z1"));
 		}
 	}

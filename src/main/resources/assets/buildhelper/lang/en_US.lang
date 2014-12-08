@@ -1,3 +1,4 @@
 item.buildhelper:wandUniversal.name=Universal Wand
+item.buildhelper:wandDelete.name=Deletion Wand
 
 itemGroup.buildhelper=Build Helper
