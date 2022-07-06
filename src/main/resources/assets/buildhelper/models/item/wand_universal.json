@@ -1,0 +1,10 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "buildhelper:items/wand_universal"
+  },
+  "overrides": [
+    { "predicate": { "custom_model_data": 1}, "model": "buildhelper:item/wand_universal_1" },
+    { "predicate": { "custom_model_data": 2}, "model": "buildhelper:item/wand_universal_2" }
+  ]
+}

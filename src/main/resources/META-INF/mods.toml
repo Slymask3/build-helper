@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[41,)"
+license="LGPLv3"
+issueTrackerURL="https://github.com/ksatchkov/build-helper/issues"
+
+[[mods]]
+modId="buildhelper"
+version="1.1.0"
+displayName="Build Helper"
+updateJSONURL="https://raw.githubusercontent.com/ksatchkov/build-helper/1.19.x/update.json"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/build-helper"
+logoFile="logo.png"
+credits="Slymask3"
+authors="Slymask3"
+description='''
+This mod adds wands to assist with building in creative mode.
+'''
+
+[[dependencies.buildhelper]]
+    modId="forge"
+    mandatory=true
+    versionRange="[41,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.buildhelper]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.19,1.20)"
+    ordering="NONE"
+    side="BOTH"

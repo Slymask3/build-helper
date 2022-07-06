@@ -1,11 +1,7 @@
-Build Helper Mod
+Build Helper for 1.19.x
 =============
-This is the source code for my Build Helper mod, you can check in here if you're interested in how something works. I know my code is messy, but I plan to clean it up soon. Please give me credit if you use any of the code. :)
+This mod adds wands to assist with building in creative mode.
 
-<b>Description:</b> Adds wands to make building easy.
+<b>CurseForge:</b> https://www.curseforge.com/minecraft/mc-mods/build-helper
 
-<b>Forum Post:</b> http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2297274
-
-<b>Released Mod Version:</b> 1.0.0 (MC 1.7.10)
-
-<b>WIP Mod Version:</b> 1.0.1 (MC 1.7.10)
+<b>Minecraft Forum:</b> https://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2297274

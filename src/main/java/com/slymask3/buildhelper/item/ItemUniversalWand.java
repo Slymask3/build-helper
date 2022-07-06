@@ -1,194 +1,86 @@
 package com.slymask3.buildhelper.item;
 
+import com.slymask3.buildhelper.init.ModItems;
+import com.slymask3.buildhelper.util.Builder;
+import com.slymask3.buildhelper.util.ClientHelper;
+import com.slymask3.buildhelper.util.Helper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+
+import javax.annotation.Nullable;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.world.World;
+public class ItemUniversalWand extends Item {
+	private static final int BLOCK = 0;
+	private static final int POS1 = 1;
+	private static final int POS2 = 2;
 
-import com.slymask3.buildhelper.handler.ConfigurationHandler;
-import com.slymask3.buildhelper.init.ModItems;
-import com.slymask3.buildhelper.reference.Colors;
-import com.slymask3.buildhelper.reference.Reference;
-import com.slymask3.buildhelper.utility.Helper;
-
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
-public class ItemUniversalWand extends ItemBase {
-    public static final String[] state = new String[] {"normal", "select", "pos1"};
-	public IIcon[] icons = new IIcon[3];
-	
 	public ItemUniversalWand() {
-		super();
-	}
-	
-	@Override
-	public void registerIcons(IIconRegister reg) {
-	    for (int i = 0; i < 3; i ++) {
-	        this.icons[i] = reg.registerIcon(Reference.MOD_ID + ":wandUniversal_" + i);
-	    }
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public boolean isFull3D() {
-		return true;
-	}
-	
-	
-	@Override
-	public IIcon getIconFromDamage(int meta) {
-	    if (meta > 2)
-	        meta = 0;
-
-	    return this.icons[meta];
+		super(new Item.Properties().tab(ModItems.ModCreativeTab.instance));
 	}
 
-	@Override
-	public String getUnlocalizedName(ItemStack stack) {
-		return this.getUnlocalizedName();// + "_" + state[stack.getItemDamage()];
-	}
-	
-	public ItemStack onItemRightClick(ItemStack is, World world, EntityPlayer player) {
-		if(is.stackTagCompound == null){
-			is.stackTagCompound = new NBTTagCompound();
-		    //LogHelper.info("Wand created. on right click");
+	public InteractionResult useOn(UseOnContext context) {
+		Level world = context.getLevel();
+		if(Helper.isServer(world)) {
+			Player player = context.getPlayer();
+			BlockPos pos = context.getClickedPos();
+			BlockState blockState = world.getBlockState(pos);
+
+			ItemStack itemStack = context.getItemInHand();
+			CompoundTag tag = itemStack.getOrCreateTag();
+			int mode = tag.getInt("CustomModelData");
+
+			if(mode == BLOCK) {
+				tag.putString("Block",getBlockStateString(blockState));
+				tag.putInt("CustomModelData",POS1);
+				Helper.sendMessage(player,"bh.message.universal.block", ChatFormatting.AQUA + getBlockStateString(blockState), pos, ClientHelper.Particles.SELECT_BLOCK);
+			} else if(mode == POS1) {
+				tag.putInt("PosX",pos.getX());
+				tag.putInt("PosY",pos.getY());
+				tag.putInt("PosZ",pos.getZ());
+				tag.putInt("CustomModelData",POS2);
+				Helper.sendMessage(player,"bh.message.universal.position",ChatFormatting.AQUA + (pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), pos, ClientHelper.Particles.UNIVERSAL_POS);
+			} else if(mode == POS2) {
+				int x1 = tag.getInt("PosX");
+				int y1 = tag.getInt("PosY");
+				int z1 = tag.getInt("PosZ");
+				BlockState state = Helper.readBlockState(tag.getString("Block"));
+				Builder.Multiple.setup(world,x1,y1,z1,pos.getX(),pos.getY(),pos.getZ()).setBlock(state).build();
+				tag = new CompoundTag();
+				tag.putInt("CustomModelData",BLOCK);
+				Helper.sendMessage(player,"bh.message.universal.done", pos, ClientHelper.Particles.UNIVERSAL_POS);
+			}
+
+			itemStack.setTag(tag);
 		}
-
-        MovingObjectPosition mop = this.getMovingObjectPositionFromPlayer(world, player, true);
-
-        if (mop == null) {
-            return is;
-        }
-        else {
-			if (is.getItemDamage() == 0) { //BLOCK SELECTED
-				ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 1);
-				isn.stackTagCompound = new NBTTagCompound();
-				
-	        	isn.stackTagCompound.setInteger("block", Block.getIdFromBlock(world.getBlock(mop.blockX, mop.blockY, mop.blockZ)));
-	        	isn.stackTagCompound.setInteger("meta", world.getBlockMetadata(mop.blockX, mop.blockY, mop.blockZ));
-
-	        	Helper.msg(player, Colors.a+"Block selected: " + Block.getBlockById(isn.stackTagCompound.getInteger("block")).getLocalizedName(), Colors.a);
-	            
-	        	Helper.effectFull(world, "reddust", mop.blockX, mop.blockY, mop.blockZ);
-	        	
-	        	return isn;
-	        } else if (is.getItemDamage() == 1) { //POS 1 SELECTED
-	        	ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 2);
-	        	isn.stackTagCompound = new NBTTagCompound();
-	        	
-	        	isn.stackTagCompound.setInteger("block", is.stackTagCompound.getInteger("block"));
-	        	isn.stackTagCompound.setInteger("meta", is.stackTagCompound.getInteger("meta"));
-	        	isn.stackTagCompound.setInteger("x1", mop.blockX);
-	        	isn.stackTagCompound.setInteger("y1", mop.blockY);
-	        	isn.stackTagCompound.setInteger("z1", mop.blockZ);
-	        	
-	        	Helper.msg(player, Colors.a+"Position 1 selected: " + isn.stackTagCompound.getInteger("x1") + ", " + isn.stackTagCompound.getInteger("y1") + ", " + isn.stackTagCompound.getInteger("z1"), Colors.a);
-	            
-	        	Helper.effectFull(world, "reddust", mop.blockX, mop.blockY, mop.blockZ);
-	        	
-	        	return isn;
-	        } else if (is.getItemDamage() == 2) { //POS 2 SELECTED
-	        	ItemStack isn = new ItemStack(ModItems.wandUniversal, 1, 0);
-	        	isn.stackTagCompound = new NBTTagCompound();
-	        	
-	        	isn.stackTagCompound.setInteger("block", is.stackTagCompound.getInteger("block"));
-	        	isn.stackTagCompound.setInteger("meta", is.stackTagCompound.getInteger("meta"));
-	        	isn.stackTagCompound.setInteger("x1", is.stackTagCompound.getInteger("x1"));
-	        	isn.stackTagCompound.setInteger("y1", is.stackTagCompound.getInteger("y1"));
-	        	isn.stackTagCompound.setInteger("z1", is.stackTagCompound.getInteger("z1"));
-	        	isn.stackTagCompound.setInteger("x2", mop.blockX);
-	        	isn.stackTagCompound.setInteger("y2", mop.blockY);
-	        	isn.stackTagCompound.setInteger("z2", mop.blockZ);
-	        	
-	        	Helper.msg(player, Colors.a+"Position 2 selected: " + isn.stackTagCompound.getInteger("x2") + ", " + isn.stackTagCompound.getInteger("y2") + ", " + isn.stackTagCompound.getInteger("z2"), Colors.a);
-	        	
-	        	Helper.effectFull(world, "reddust", mop.blockX, mop.blockY, mop.blockZ);
-	        	
-	        	int amount = 0;
-	        	
-	        	int xDif = toPositive(isn.stackTagCompound.getInteger("x1") - isn.stackTagCompound.getInteger("x2"));
-	        	int yDif = toPositive(isn.stackTagCompound.getInteger("y1") - isn.stackTagCompound.getInteger("y2"));
-	        	int zDif = toPositive(isn.stackTagCompound.getInteger("z1") - isn.stackTagCompound.getInteger("z2"));
-	        	
-	        	int x = isn.stackTagCompound.getInteger("x1");
-	            int y = isn.stackTagCompound.getInteger("y1");
-	            int z = isn.stackTagCompound.getInteger("z1");
-	       
-	            int bx = isn.stackTagCompound.getInteger("x1");
-	            int bz = isn.stackTagCompound.getInteger("z1");
-	     
-	            for (int i=0; i<yDif+1; i++) {
-	                for (int j=0; j<zDif+1; j++) {
-	                    for (int k=0; k<xDif+1; k++) {
-	                        
-	                        world.setBlock(x, y, z, Block.getBlockById(isn.stackTagCompound.getInteger("block")), isn.stackTagCompound.getInteger("meta"), 2);
-	                        amount++;
-	                        
-	                        if(isPositive(isn.stackTagCompound.getInteger("x1") - isn.stackTagCompound.getInteger("x2"))) {
-	    	                	x--;
-	    	                } else {
-	    	                	x++;
-	    	                }
-	                    }
-	                    x = bx;
-	                    
-	                    if(isPositive(isn.stackTagCompound.getInteger("z1") - isn.stackTagCompound.getInteger("z2"))) {
-		                	z--;
-		                } else {
-		                	z++;
-		                }
-	                }
-	                z = bz;
-	                x = bx;
-	                
-	                if(isPositive(isn.stackTagCompound.getInteger("y1") - isn.stackTagCompound.getInteger("y2"))) {
-	                	y--;
-	                } else {
-	                	y++;
-	                }
-	            }
-	        	
-	        	Helper.msg(player, Colors.b+"Generated " + amount + " blocks.", Colors.b);
-	        	
-	        	Helper.sound(world, ConfigurationHandler.sound, mop.blockX, mop.blockY, mop.blockZ);
-	        	
-	            return isn;
-	        }
-			return is;
-        }
-    }
-
-	private int toPositive(int i) {
-		if (i<0) {
-			return -i;
-		} else {
-			return i;
-		}
+		return InteractionResult.PASS;
 	}
 
-	private boolean isPositive(int i) {
-		if (i<0) {
-			return false;
-		} else {
-			return true;
-		}
+	private String getBlockStateString(BlockState state) {
+		return state.toString().replaceAll("Block\\{","").replaceAll("}","");
 	}
-	
-	public void addInformation(ItemStack is, EntityPlayer player, List list, boolean par4) {
-		if(is.getItemDamage() == 0) {
-			list.add("Select a Block with right-click.");
-		}
-		if(is.getItemDamage() >= 1 && is.stackTagCompound != null) {
-			list.add("Block: " +  Block.getBlockById(is.stackTagCompound.getInteger("block")).getLocalizedName());
-		}
-		if(is.getItemDamage() >= 2 && is.stackTagCompound != null) {
-			list.add("Pos 1: " + is.stackTagCompound.getInteger("x1") + ", " + is.stackTagCompound.getInteger("y1") + ", " + is.stackTagCompound.getInteger("z1"));
+
+	public void appendHoverText(ItemStack itemStack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
+		CompoundTag tag = itemStack.getOrCreateTag();
+		int mode = tag.getInt("CustomModelData");
+		if(mode == BLOCK) {
+			list.add(Component.translatable("bh.tooltip.universal.select"));
+		} else if(mode == POS1) {
+			list.add(Component.translatable("bh.tooltip.universal.block",tag.getString("Block")));
+		} else if(mode == POS2) {
+			list.add(Component.translatable("bh.tooltip.universal.block",tag.getString("Block")));
+			String position = tag.getInt("PosX") + ", " + tag.getInt("PosY") + ", " + tag.getInt("PosZ");
+			list.add(Component.translatable("bh.tooltip.universal.position",position));
 		}
 	}
 }
