@@ -1,0 +1,23 @@
+{
+  "itemGroup.buildhelper": "Build Helper",
+  "itemGroup.buildhelper.general": "Build Helper",
+
+  "item.buildhelper.wand_universal": "Universal Wand",
+  "item.buildhelper.wand_delete": "Deletion Wand",
+
+  "bh.tooltip.universal.select": "Select a block with right-click.",
+  "bh.tooltip.universal.block": "Block: %s",
+  "bh.tooltip.universal.position": "Pos 1: %s",
+
+  "bh.tooltip.delete.select": "Select first position with right-click.",
+  "bh.tooltip.delete.position": "Pos 1: %s",
+
+  "bh.message.universal.block": "§bSet block to %s",
+  "bh.message.universal.position": "§bSet position 1 to %s",
+  "bh.message.universal.done": "§bBuilt",
+
+  "bh.message.delete.position": "§cSet position 1 to %s",
+  "bh.message.delete.done": "§cDeleted",
+
+  "bh.message.clear": "Cleared"
+}

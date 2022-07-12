@@ -1,0 +1,32 @@
+{
+    "schemaVersion": 1,
+    "id": "buildhelper",
+    "version": "${version}",
+  
+    "name": "Build Helper",
+    "description": "This mod adds wands to assist with building in creative mode.",
+    "authors": [
+      "Slymask3"
+    ],
+    "contact": {
+      "homepage": "https://www.curseforge.com/minecraft/mc-mods/build-helper",
+      "sources": "https://github.com/slymask3/build-helper"
+    },
+  
+    "license": "LGPLv3",
+    "icon": "assets/buildhelper/icon.png",
+  
+    "environment": "*",
+    "entrypoints": {
+      "main": [
+        "com.slymask3.buildhelper.BuildHelper"
+      ]
+    },
+  
+    "depends": {
+      "fabricloader": ">=0.14",
+      "fabric": "*",
+      "minecraft": "1.19.x",
+      "java": ">=17"
+    }
+}
