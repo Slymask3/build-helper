@@ -1,17 +1,14 @@
 package com.slymask3.buildhelper.network;
 
 import com.slymask3.buildhelper.Common;
+import com.slymask3.buildhelper.network.packet.AbstractPacket;
 import com.slymask3.buildhelper.network.packet.ClientPacket;
 import com.slymask3.buildhelper.network.packet.ResetPacket;
-import com.slymask3.buildhelper.util.ClientHelper;
 import net.minecraft.client.Minecraft;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
@@ -25,41 +22,39 @@ public class ForgePacketHandler {
 
     public static void register() {
         int index = 100;
-        INSTANCE.registerMessage(++index, ClientPacket.class, ClientPacket::encode, ClientPacket::decode, ClientPacketHandler::handle);
-        INSTANCE.registerMessage(++index, ResetPacket.class, ResetPacket::encode, ResetPacket::decode, ResetPacketHandler::handle);
+        INSTANCE.registerMessage(++index, ClientPacket.class, ClientPacket::encode, ClientPacket::decode, Handler::client);
+        INSTANCE.registerMessage(++index, ResetPacket.class, ResetPacket::encode, ResetPacket::decode, Handler::common);
     }
 
-    public static class ClientPacketHandler {
-        public static void handle(ClientPacket message, Supplier<NetworkEvent.Context> context) {
+    public static class Handler {
+        public static void common(AbstractPacket message, Supplier<NetworkEvent.Context> context) {
             context.get().enqueueWork(() -> {
-                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-                    Player player = Minecraft.getInstance().player;
-                    if(player != null) {
-                        if(message.particles != ClientHelper.Particles.NONE.ordinal()) {
-                            Level world = player.getLevel();
-                            ClientHelper.playSound(world, message.pos);
-                            ClientHelper.showParticles(world, message.pos, ClientHelper.Particles.values()[message.particles]);
-                        }
-                        if(!message.message.isEmpty()) {
-                            ClientHelper.sendMessage(player, message.message, message.variable);
-                        }
+                Player player = context.get().getSender();
+                if(player != null) {
+                    if(message.getClass().equals(ResetPacket.class)) {
+                        PacketHelper.handleReset(player);
                     }
-                });
+                }
+            });
+            context.get().setPacketHandled(true);
+        }
+        public static void client(AbstractPacket message, Supplier<NetworkEvent.Context> context) {
+            context.get().enqueueWork(() -> {
+                DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> ClientHandler.handle(message,context));
             });
             context.get().setPacketHandled(true);
         }
     }
 
-    public static class ResetPacketHandler {
-        public static void handle(ResetPacket message, Supplier<NetworkEvent.Context> context) {
-            context.get().enqueueWork(() -> {
-                Player player = context.get().getSender();
-                if(player != null) {
-                    ItemStack itemStack = player.getItemInHand(InteractionHand.MAIN_HAND);
-                    itemStack.setTag(new CompoundTag());
+    @OnlyIn(Dist.CLIENT)
+    public static class ClientHandler {
+        public static void handle(AbstractPacket message, Supplier<NetworkEvent.Context> context) {
+            Player player = Minecraft.getInstance().player;
+            if(player != null) {
+                if(message.getClass().equals(ClientPacket.class)) {
+                    PacketHelper.handleClient((ClientPacket)message, player);
                 }
-            });
-            context.get().setPacketHandled(true);
+            }
         }
     }
 }

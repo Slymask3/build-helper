@@ -1,10 +1,12 @@
 package com.slymask3.buildhelper;
 
+import com.slymask3.buildhelper.config.ClothConfig;
+import com.slymask3.buildhelper.config.ForgeConfig;
 import com.slymask3.buildhelper.core.ModItems;
-import com.slymask3.buildhelper.handler.ForgeConfig;
 import com.slymask3.buildhelper.init.Registration;
 import com.slymask3.buildhelper.network.ForgePacketHandler;
 import com.slymask3.buildhelper.network.packet.AbstractPacket;
+import com.slymask3.buildhelper.platform.Services;
 import com.slymask3.buildhelper.platform.services.IPacketHandler;
 import com.slymask3.buildhelper.platform.services.IRegistryHelper;
 import net.minecraft.core.Registry;
@@ -20,22 +22,24 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.registries.IForgeRegistry;
 import net.minecraftforge.registries.RegisterEvent;
+import org.jetbrains.annotations.NotNull;
 
 @Mod(Common.MOD_ID)
 public class BuildHelper {
 	public BuildHelper() {
-		Common.ITEM_GROUP = new CreativeModeTab(CreativeModeTab.TABS.length,Common.MOD_ID) {
-			@Override
-			public ItemStack makeIcon() {
-				return new ItemStack(ModItems.WAND_UNIVERSAL);
-			}
-		};
+		Common.ITEM_GROUP = new CreativeModeTab(CreativeModeTab.TABS.length,Common.MOD_ID) { public @NotNull ItemStack makeIcon() { return new ItemStack(ModItems.WAND_UNIVERSAL); } };
 		Common.NETWORK = new PacketHandler();
-		Common.init();
+
+		if(Services.PLATFORM.isModLoaded("cloth_config")) {
+			ClothConfig.register();
+			Common.CONFIG = ClothConfig.get();
+		} else {
+			ForgeConfig.init();
+			Common.CONFIG = new ForgeConfig();
+		}
 
 		IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-		ForgeConfig.init();
 		modEventBus.addListener(this::setupCommon);
 		modEventBus.addListener((RegisterEvent e) -> {
 			if(e.getForgeRegistry() != null && e.getForgeRegistry().getRegistryKey().equals(Registry.ITEM_REGISTRY)) {

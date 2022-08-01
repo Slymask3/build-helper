@@ -32,8 +32,11 @@ public class UniversalWandItem extends Item {
 
 	public InteractionResult useOn(UseOnContext context) {
 		Level world = context.getLevel();
-		if(Helper.isServer(world)) {
-			Player player = context.getPlayer();
+		Player player = context.getPlayer();
+
+		if(Helper.isServer(world) && player != null) {
+			Common.CONFIG.reload();
+
 			BlockPos pos = context.getClickedPos();
 			BlockState blockState = world.getBlockState(pos);
 

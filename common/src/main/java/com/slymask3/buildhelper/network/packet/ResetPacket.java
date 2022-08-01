@@ -1,11 +1,11 @@
 package com.slymask3.buildhelper.network.packet;
 
-import com.slymask3.buildhelper.network.PacketID;
+import com.slymask3.buildhelper.network.PacketHelper;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class ResetPacket extends AbstractPacket {
 	public ResetPacket() {
-		super(PacketID.RESET);
+		super(PacketHelper.PacketID.RESET);
 	}
 
 	public static void encode(ResetPacket message, FriendlyByteBuf buffer) {}

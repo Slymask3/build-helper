@@ -1,8 +1,10 @@
 package com.slymask3.buildhelper.item;
 
+import com.slymask3.buildhelper.Common;
 import com.slymask3.buildhelper.util.Builder;
 import com.slymask3.buildhelper.util.ClientHelper;
 import com.slymask3.buildhelper.util.Helper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -28,8 +30,11 @@ public class DeleteWandItem extends Item {
 
 	public InteractionResult useOn(UseOnContext context) {
 		Level world = context.getLevel();
-		if(Helper.isServer(world)) {
-			Player player = context.getPlayer();
+		Player player = context.getPlayer();
+
+		if(Helper.isServer(world) && player != null) {
+			Common.CONFIG.reload();
+
 			BlockPos pos = context.getClickedPos();
 
 			ItemStack itemStack = context.getItemInHand();
@@ -41,7 +46,7 @@ public class DeleteWandItem extends Item {
 				tag.putInt("PosY",pos.getY());
 				tag.putInt("PosZ",pos.getZ());
 				tag.putInt("CustomModelData",POS2);
-				Helper.sendMessage(player,"bh.message.delete.position",pos.getX() + ", " + pos.getY() + ", " + pos.getZ(), pos, ClientHelper.Particles.DELETE_POS);
+				Helper.sendMessage(player,"bh.message.delete.position", ChatFormatting.RED + (pos.getX() + ", " + pos.getY() + ", " + pos.getZ()), pos, ClientHelper.Particles.DELETE_POS);
 			} else if(mode == POS2) {
 				int x1 = tag.getInt("PosX");
 				int y1 = tag.getInt("PosY");

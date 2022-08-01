@@ -20,6 +20,12 @@
     "entrypoints": {
       "main": [
         "com.slymask3.buildhelper.BuildHelper"
+      ],
+      "client": [
+        "com.slymask3.buildhelper.BuildHelperClient"
+      ],
+      "modmenu": [
+        "com.slymask3.buildhelper.handler.ModMenuIntegration"
       ]
     },
   
